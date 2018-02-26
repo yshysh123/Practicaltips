@@ -1,0 +1,32 @@
+state = {
+  numPages: 1,
+  pageNumber: 1,
+}
+
+onDocumentLoad = ({ numPages }) => {
+  this.setState({ numPages });
+  $('.ReactPDF__Page__canvas').css('margin','0 auto');
+  $('.ReactPDF__Page__canvas').css('width','auto');
+  $('.ReactPDF__Page__canvas').css('height','auto');
+}
+render() {
+  const { store: { docDetail } } = this.props;
+  const { pageNumber, numPages } = this.state;
+  const document = nj`
+    <div style="margin-bottom:30px;width:890px;height:760px;overflow-y:scroll">
+      <${Document}
+        file={url}
+        onLoadSuccess={onDocumentLoad}
+        style="margin:auto;width:auto;height:auto"
+      >
+        <#for {1} {numPages}>
+          <${Page} pageNumber={@index} />
+        </#for>
+      </${Document}>
+    </div>`({onDocumentLoad:this.onDocumentLoad,url:docDetail.docData.docUrl,pageNumber:pageNumber,numPages:numPages})
+    return tmpls.container(this.state, this.props, this, {
+    styles,
+    docDetail,
+    document:document
+  });
+}
