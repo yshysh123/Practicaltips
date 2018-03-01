@@ -1,0 +1,14 @@
+import { types,getParent } from "mobx-state-tree";
+const xxxStore = types.model("xxxStore", {
+  }).volatile(self => ({
+  })).views(self => {
+    return {
+      get common() {
+        return getParent(self).common;
+      }
+    };
+  })
+  self.common.getLoading(false);
+});
+
+export default xxxStore;
