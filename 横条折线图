@@ -1,0 +1,106 @@
+//横条折线图Option
+  @computed get lineOptions() {
+  return {
+    backgroundColor: '#1b1b1b',
+    tooltip: {
+      trigger: "axis",
+      show:false
+    },
+    grid: {
+      borderWidth: 0,
+      left:70,
+      right:40,
+      top: 20,
+      bottom: 20,
+      textStyle: {
+          color: "#fff"
+      },
+    },
+    legend: {
+        x: 'center',
+        data: ['数据'],
+        show:false
+    },
+    xAxis: {
+      type:'value',
+      max:100,
+      axisLine: {
+        lineStyle: {
+            color: '#fff'
+        }
+      },
+      splitLine:{
+        show:false
+      },
+      splitNumber:10,
+    },
+    yAxis:  {
+      type: 'category',
+      data: ['卫生纸','毛巾','洗漱用具','塑料袋','洗手液','湿巾',],
+      axisLine: {
+        lineStyle: {
+            color: '#fff'
+        }
+      },
+    }
+  }
+};
+//横条柱状图data
+@computed get lineData() {
+  return [
+    {
+      name: "数据",
+      type: "bar",
+      barWidth: '50%',
+      color:'rgba(222, 187, 107, 1)',
+      itemStyle: {
+        normal: {
+            color: "#debb6b",
+            label: {
+                show: true,
+                position: "right",
+                color:'#fff',
+                formatter: function(p) {
+                    return p.value > 0 ? (p.value) : '';
+                }
+            }
+        }
+      },
+      markLine:{
+        data:[
+          {
+            name: '平均线',
+            // 支持 'average', 'min', 'max'
+            type: 'average'
+          },{
+            name: '平均线',
+            // 支持 'average', 'min', 'max'
+            type: 'average'
+          }
+        ],
+        symbol:'circle',
+        symbolSize:0,
+        lineStyle:{
+          normal:{
+            color:'#fff'
+          }
+        }
+      },
+      data: [50,43,28,55,{
+        value : 76,
+        itemStyle:{
+            normal: {
+                color: '#336699'
+            }
+        }
+      },{
+        value : 67,
+        itemStyle:{
+            normal: {
+                color: '#336699'
+            }
+        }
+      }]
+    },
+  ];
+};
