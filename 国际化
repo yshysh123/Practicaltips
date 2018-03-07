@@ -1,0 +1,18 @@
+import en_US from './src/web/locales/en-US.js';
+import zh_CN from './src/web/locales/zh-CN.js';
+const locales = {
+  "en-us": en_US,
+  "zh-cn": zh_CN,
+};
+let currentLocale = intl.determineLocale({
+  urlLocaleKey: "lang",
+  cookieLocaleKey: "lang"
+});
+let onOff = false;
+if(currentLocale.toLowerCase() == 'en-us' || currentLocale.toLowerCase() == 'zh-cn'){
+  onOff = true;
+}
+intl.init({
+  currentLocale: onOff?currentLocale.toLowerCase():(navigator.language || navigator.browserLanguage).toLowerCase(),
+  locales
+});
