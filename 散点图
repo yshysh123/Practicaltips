@@ -1,0 +1,115 @@
+//散点图OneOption
+@computed get scatterOptionsOne() {
+  return {
+    backgroundColor: '#1b1b1b',
+    tooltip: {
+      show:false
+    },
+    legend: {
+      right: 10,
+      data: ['1990'],
+      show:false
+    },
+    xAxis: {
+      name: '销售毛利率',
+      min:0,
+      nameGap:'-25',
+      nameTextStyle:{
+        align:'right',
+        padding:[70,0,0,0]
+      },
+      type: 'value',
+      scale: true,
+      axisLabel: {
+        formatter: '{value}%'
+      },
+      splitLine: {
+        show: false
+      },
+      axisLine: {
+        lineStyle: {
+            color: '#fff'
+        }
+      }
+    },
+    yAxis: {
+      name: '销售额',
+      min:0,
+      type: 'value',
+      scale: true,
+      axisLabel: {
+        formatter: '{value}'
+      },
+      splitLine: {
+        show: false
+      },
+      axisLine: {
+        lineStyle: {
+            color: '#fff'
+        }
+      }
+    },
+  };
+};
+//散点图Onedata
+@computed get scatterDataOne() {
+  return [
+    {
+      type: 'scatter',
+      name:'1990',
+      data:[[10,500,5,'洗手液',1990],[15,1100,10,'纸巾',1990],[18,240,4,'护手霜',1990],[42,800,30,'卫生纸',1990],[52,810,12,'肥皂',1990],[55,820,22,'洗面奶',1990]],
+      symbolSize(data) {
+        return Math.sqrt(data[2])*20;
+      },
+      label: {
+        normal: {
+          show: true,
+          formatter: function (param) {
+            return param.data[3];
+          },
+          color:'#fff',
+          position: 'inside'
+        }
+      },
+      itemStyle: {
+        normal: {
+          color:'#debb6b'
+        }
+      },
+      markLine: {
+        label: {
+          normal: {
+            show:false
+          }
+        },
+        symbol:'circle',
+        symbolSize:0,
+        lineStyle: {
+          normal: {
+            color: "#ccc",
+            type: 'solid',
+            width: 1,
+            type:'dashed'
+          }
+        },
+        data: [{
+          xAxis: 13,
+          name: '营业额平均线',
+          itemStyle: {
+            normal: {
+              color: "#fff",
+            }
+          }
+        }, {
+          yAxis: 380,
+          name: '服务能力平均线',
+          itemStyle: {
+            normal: {
+              color: "#fff",
+            }
+          }
+        }]
+      },
+    }
+  ];
+};
