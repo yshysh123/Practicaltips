@@ -1,0 +1,69 @@
+//雷达图Option
+@computed get radarOptions() {
+  return {
+    backgroundColor: '#1b1b1b',
+    tooltip: {
+      show:false
+    },
+    legend: {
+        x: 'center',
+        data:['某软件'],
+        show:false
+    },
+    radar:{
+      indicator: [
+        {text: '销量增长率', max: 100},
+        {text: '关联度', max: 100},
+        {text: '助销率', max: 100},
+        {text: '利润增长率', max: 100},
+        {text: '销售增长率', max: 100}
+      ],
+      triggerEvent: true,
+      silent: true,
+      scale: true,
+      radius: 120,
+      splitNumber: 5,
+      name: {
+        textStyle: {
+            color: '#cccccc'
+        }
+      },
+      splitLine: {
+        lineStyle: {
+            color: '#646464'
+        }
+      },
+      splitArea: {
+          show: false
+      },
+      axisLine: {
+        lineStyle: {
+            color: '#646464'
+        }
+      }
+    }
+  };
+};
+//雷达图data
+@computed get radarData() {
+  return [
+    {
+      name: '某软件',
+      type: 'radar',
+      areaStyle: {
+        normal: {
+          color: '#73400d'
+        }
+      },
+      lineStyle: {
+        normal: {
+          color: '#73400d',
+          width:1
+        }
+      },
+      data: [{
+        value: [88,12,80,30,65],
+      }]
+    },
+  ];
+};
