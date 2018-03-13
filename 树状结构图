@@ -1,0 +1,195 @@
+componentDidMount(){
+  this.refs.treeCategory.chart.on('click', (params)=> {
+    this.data1[0].children.forEach((item)=>{
+      if(params.name==item.name){
+        item.collapsed = null;
+      }else{
+        item.collapsed = true;
+      }
+    })
+  })
+}
+@observable data1 = [{
+  "name": "拉杆箱",
+  "children": [
+    {
+      "name": "颜色",
+      "children": [
+        {"name": "红","value": 3322},
+        {"name": "黄","value": 3322},
+        {"name": "橙","value": 3322},
+        {"name": "绿","value": 3322},
+        {"name": "青","value": 3322},
+        {"name": "蓝","value": 3322},
+        {"name": "紫","value": 3322},
+      ]
+    },
+    {
+      "name": "尺寸",
+      'collapsed':true,
+      "children": [
+        {"name": "800*800", "value": 8833},
+        {"name": "600*600", "value": 1732},
+        {"name": "400*400", "value": 3623},
+        {"name": "200*200", "value": 3623},
+        {"name": "100*100", "value": 3623},
+        {"name": "50*50", "value": 3623},
+        {"name": "20*20", "value": 3623}
+      ]
+    },
+    {
+      "name": "材质",
+      'collapsed':true,
+      "children": [
+        {"name": "金属", "value": 4116},
+        {"name": "塑料", "value": 4116},
+        {"name": "玻璃", "value": 4116},
+        {"name": "铝合金", "value": 4116},
+        {"name": "钢化玻璃", "value": 4116},
+        {"name": "铁", "value": 4116},
+        {"name": "金", "value": 4116},
+        {"name": "银", "value": 4116}
+      ]
+    },
+    {
+      "name": "分类",
+      'collapsed':true,
+      "children": [
+        {"name": "旅行箱", "value": 1616},
+        {"name": "杂物箱", "value": 1027},
+        {"name": "设备箱", "value": 3891},
+        {"name": "仪器箱", "value": 891},
+      ]
+    },{
+      "name": "滚轮样式",
+      'collapsed':true,
+      "children": [
+        {"name": "圆形", "value": 2105},
+        {"name": "方形", "value": 1316},
+        {"name": "菱形", "value": 3151},
+        {"name": "锥形", "value": 3770},
+      ]
+    },{
+      "name": "滚轮数量",
+      'collapsed':true,
+      "children": [
+        {"name": "1个", "value": 2105},
+        {"name": "2个", "value": 1316},
+        {"name": "3个", "value": 3151},
+        {"name": "4个", "value": 3770},
+        {"name": "5个", "value": 2105},
+        {"name": "6个", "value": 1316},
+        {"name": "7个", "value": 3151},
+        {"name": "8个", "value": 3770},
+      ]
+    },{
+      "name": "拉杆种类",
+      'collapsed':true,
+      "children": [
+        {"name": "种类1", "value": 2105},
+        {"name": "种类2", "value": 1316},
+        {"name": "种类3", "value": 3151},
+        {"name": "种类4", "value": 3770},
+        {"name": "种类5", "value": 2105},
+        {"name": "种类6", "value": 1316},
+        {"name": "种类7", "value": 3151},
+        {"name": "种类8", "value": 3770},
+      ]
+    },{
+      "name": "拉杆节数",
+      'collapsed':true,
+      "children": [
+        {"name": "1节", "value": 2105},
+        {"name": "2节", "value": 1316},
+        {"name": "3节", "value": 3151},
+        {"name": "4节", "value": 3770},
+        {"name": "5节", "value": 2105},
+        {"name": "6节", "value": 1316},
+        {"name": "7节", "value": 3151},
+        {"name": "8节", "value": 3770},
+      ]
+    },{
+      "name": "闭合方式",
+      'collapsed':true,
+      "children": [
+        {"name": "闭合1", "value": 2105},
+        {"name": "闭合2", "value": 1316},
+        {"name": "闭合3", "value": 3151},
+        {"name": "闭合4", "value": 3770},
+        {"name": "闭合5", "value": 2105},
+        {"name": "闭合6", "value": 1316},
+        {"name": "闭合7", "value": 3151},
+        {"name": "闭合8", "value": 3770},
+      ]
+    }
+  ]
+}]
+//树状图option
+@computed get treeOptions() {
+  return {
+    backgroundColor: '#1b1b1b',
+    tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove'
+    },
+    legend: {
+      top: '2%',
+      left: '3%',
+      orient: 'vertical',
+      data: [{
+        name: 'tree1',
+        icon: 'rectangle'
+      }],
+      show:false
+    },
+    xAxis: {
+      show:false
+    },
+    yAxis: {
+      show:false
+    },
+  };
+};
+//树状图data
+@computed get treeData() {
+  return [
+    {
+      type: 'tree',
+      name: 'tree1',
+      symbol:'roundRect',
+      itemStyle:{
+        normal:{
+          color:'rgb(222, 187, 107)',
+          borderColor:'#fff'
+        }
+      },
+      data: toJS(this.data1),
+      top: '5%',
+      left: '5%',
+      bottom: '5%',
+      right: '10%',
+      label: {
+        normal: {
+          position: 'top',
+          align: 'center',
+          color:'rgb(222, 187, 107',
+          fontSize:'14'
+        }
+      },
+      leaves: {
+        label: {
+          normal: {
+            position: 'right',
+            verticalAlign: 'middle',
+            align: 'left',
+            color:'#fff',
+            fontSize:'14'
+          }
+        },
+      },
+      expandAndCollapse: true,
+      animationDuration: 550,
+      animationDurationUpdate: 750
+    },
+  ];
+};
