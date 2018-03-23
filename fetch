@@ -1,74 +1,58 @@
-import { locale } from 'moment';
+import { types, getParent } from 'mobx-state-tree';
+import { observable, toJS } from 'mobx';
+import { fetchData } from 'flarej/lib/utils/fetchConfig';
+import Notification from './notification';
+import Message from 'flarej/lib/components/antd/message';
 
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-exports.handleErrors = handleErrors;
-exports.fetchData = fetchData;
-
-var _querystring = require('querystring');
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * 捕获错误
- */
-function handleErrors(response) {
-  if (!response.ok) {
-    throw Error(response.statusText);
-  }
-  return response;
-}
-
-function customHeaders(options) {
-  options = options || {};
-  options.headers = options.headers || {};
-  options.headers['X-Requested-With'] = 'XMLHttpRequest';
-  return options;
-}
-
-/**
- * 获取数据
- */
-function fetchData(url, callback, params, cfgs) {
-  var configs = _extends({
-    method: 'get',
-    credentials: 'include',
-    mode: 'cors',
-    cache: 'reload'
-  }, cfgs);
-
-  configs.method = configs.method.toLowerCase();
-  if (params) {
-    if (configs.method === 'get' || configs.method === 'delete') {
-      url += '?' + _querystring2.default.encode(params);
-      configs.credentials = 'include';
-    } else if (configs.method === 'post' || configs.method === 'put') {
-      configs.credentials = 'include';
-      if (!configs.headers) {
-        configs.headers = {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+const FetchStore = types
+  .model('FetchStore', {
+    bool: types.optional(types.boolean, true), // 布尔类型声明
+    strs: types.optional(types.string, ''), // 字符串类型声明
+    arrs: types.optional(types.array(types.string), []), // 数组类型声明
+  })
+  .volatile(self => ({}))
+  .views(self => {
+    return {
+      get common() {
+        return getParent(self).common;
+      },
+    };
+  })
+  .actions(self => {
+    return {
+      getFetchData(
+        url,
+        callback,
+        params = {},
+        cfgs = { methods: 'get' },
+        closeLoading = false,
+      ) {
+        let callbackNew = function(result) {
+          if (closeLoading) {
+            self.common.getLoading(false);
+          }
+          if (result.code == '000000') {
+            callback(result);
+          } else if (result.code == '501') {
+          } else {
+            Notification.error({
+              description: '获取数据出错，错误是:' + result.message,
+              duration: 3,
+            });
+          }
         };
-      }
-      configs.body = JSON.stringify(params);
-    }
-  }
+        return fetchData(url, callbackNew, params, cfgs).catch(ex => {
+          if (closeLoading) {
+            self.common.getLoading(false);
+          }
+          Notification.error({
+            description: '获取数据出错，错误是:' + ex,
+            duration: 3,
+          });
+        });
+      },
+    };
+  });
 
-  return fetch(url, customHeaders(configs)).then(handleErrors).then(function (response) {
-    return response.json();
-  }).then(result=>{
-    // console.log(result)
-    if(result.code=='501'){
-      location.hash= `/Main`;
-    }
-    return result
-  }).then(callback)
-}
+export default FetchStore;
+
