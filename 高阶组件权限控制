@@ -1,0 +1,81 @@
+import react, { Component, PropTypes } from 'react';
+import { observable } from 'mobx';
+import { observer, inject } from 'mobx-react';
+import { registerTmpl } from 'nornj-react';
+import { autobind } from 'core-decorators';
+import { fetchData } from 'flarej/lib/utils/fetchConfig';
+
+@registerTmpl('SaaS-wrapAuth')
+@inject('store')
+@observer
+class CategoryRole extends Component {
+  componentWillMount() {
+    let hash = location.hash.split('/')[1];
+    this.onOff = false;
+    if(this.props.store.common.authorityHash == hash){
+      this.getIndex(this.props.store.common.authorityData);
+      if (this.onOff) {
+        this.setState({
+          comp: this.props.children,
+        });
+      } else {
+        this.setState({
+          comp: null,
+        });
+      }
+    }else{
+      this.props.store.common.setAuthorityHash(hash);
+      fetchData(
+        `${__HOST}cs/user/menu/${hash}`,
+        this.callBack(this),
+        {},
+        { method: 'get' },
+      ).then(result => {});
+    }
+  }
+
+  @observable onOff = false;
+
+  getIndex = _data => {
+    if(this.onOff){
+      return;
+    }
+    _data.forEach(item => {
+      if (item.name == this.props.index) {
+        this.onOff = true;
+        return;
+      } else {
+        if (item.children && item.children.length) {
+          return this.getIndex(item.children);
+        } else {
+          return;
+        }
+      }
+    });
+  };
+
+  callBack(that) {
+    return function(result) {
+      let data = result.data;
+      that.props.store.common.getAuthorityData(data)
+      that.getIndex(data);
+      if (that.onOff) {
+        that.setState({
+          comp: that.props.children,
+        });
+      } else {
+        that.setState({
+          comp: null,
+        });
+      }
+    };
+  }
+
+  state = {
+    comp: null,
+  };
+
+  render() {
+    return this.state.comp;
+  }
+}
