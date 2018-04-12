@@ -8,14 +8,14 @@ const FetchStore = types
   .model('FetchStore', {
     bool: types.optional(types.boolean, true), // 布尔类型声明
     strs: types.optional(types.string, ''), // 字符串类型声明
-    arrs: types.optional(types.array(types.string), []), // 数组类型声明
+    arrs: types.optional(types.array(types.string), []) // 数组类型声明
   })
   .volatile(self => ({}))
   .views(self => {
     return {
       get common() {
         return getParent(self).common;
-      },
+      }
     };
   })
   .actions(self => {
@@ -25,32 +25,50 @@ const FetchStore = types
         callback,
         params = {},
         cfgs = { methods: 'get' },
-        closeLoading = false,
+        authority = null
       ) {
+        if (authority && !self.common.getAuthorityBoolean(authority)) return;
         let callbackNew = function(result) {
-          if (closeLoading) {
-            self.common.getLoading(false);
-          }
           if (result.code == '000000') {
-            callback(result);
+            if (result.data && result.data.length) {
+              callback(result);
+            } else {
+              location.hash = '/ErrorPage';
+              // throw Error('获取数据错误');
+              Notification.error({
+                description: '获取数据出错，请稍等，或联系管理员',
+                duration: 3
+              });
+            }
           } else if (result.code == '501') {
+            location.href = window.location.protocol + '//' + document.domain;
+          } else if (result.code == '500') {
+            Notification.error({
+              description: '系统内部错误',
+              duration: 3
+            });
+            location.hash = '/ErrorPage';
+          } else if (result.code == '502') {
+            Notification.error({
+              description: '您没有权限访问该页面，请刷新页面或联系管理员',
+              duration: 3
+            });
+            location.hash = '/ErrorPage';
           } else {
             Notification.error({
-              description: '获取数据出错，错误是:' + result.message,
-              duration: 3,
+              description: '获取数据出错，错误是：' + result.message,
+              duration: 3
             });
           }
         };
         return fetchData(url, callbackNew, params, cfgs).catch(ex => {
-          if (closeLoading) {
-            self.common.getLoading(false);
-          }
+          self.common.getLoading(false);
           Notification.error({
             description: '获取数据出错，错误是:' + ex,
-            duration: 3,
+            duration: 3
           });
         });
-      },
+      }
     };
   });
 
