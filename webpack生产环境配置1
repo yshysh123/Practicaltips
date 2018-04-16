@@ -1,0 +1,27 @@
+if (isProd || isTest) {
+  if (isProd) {
+    module.exports.plugins = (module.exports.plugins || []).concat([
+      new UglifyJSPlugin({
+        exclude: /node_modules/,
+        sourceMap: true,
+        drop_debugger: true,
+        drop_console: true
+      }),
+      new webpack.optimize.OccurrenceOrderPlugin()
+    ]);
+  }
+
+  if (isTest) {
+    module.exports.plugins = (module.exports.plugins || []).concat([
+      new UglifyJSPlugin({
+        exclude: /node_modules/,
+        sourceMap: true
+      }),
+      new webpack.optimize.OccurrenceOrderPlugin()
+    ]);
+
+    module.exports.devtool = '#cheap-module-source-map';
+  }
+} else {
+  module.exports.devtool = 'source-map';
+}
