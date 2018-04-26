@@ -1,0 +1,33 @@
+import React from 'react'
+// import { Redirect } from 'react-router'
+import { Route } from 'react-router-dom'
+import Loadable from 'react-loadable'
+import App from 'components/App'
+import NoMatch from 'components/NoMatch'
+
+const loading = () => {
+  return <div>Loading ... </div>
+}
+
+// 默认路由页面
+const ConsumerDecisionTree = Loadable({
+  loader: () => import('./pages/ConsumerDecisionTree'),
+  loading,
+})
+
+// 自动加载所有pages文件夹的一级目录或文件为路由页面
+const routerRequire = require.context('./pages', true, /^\.\/[^/.]+$/)
+const routerPaths = routerRequire.keys()
+const routers = routerPaths.map(key => {
+  const path = key.slice(1)
+  return <Route path={path} key={key} component={routerRequire(key).default} />
+})
+
+routers.push(
+  <Route exact path="/" key="root" component={ConsumerDecisionTree} />,
+  <Route key="noMatch" component={NoMatch} />,
+)
+
+const routes = <App>{routers}</App>
+
+export default routes
