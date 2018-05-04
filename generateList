@@ -1,0 +1,69 @@
+import { action, extendObservable } from 'mobx'
+import merge from 'lodash/merge'
+import upperFirst from 'lodash/upperFirst'
+import fetch from 'utils/fetch'
+import castArray from 'lodash/castArray'
+
+/*
+ * 生成被修饰Class的 `${name}List`属性
+ * 与`fetch${upperFirst(name)}List`方法
+ * 针对列表与分页处理使用
+ * */
+const generateList = options => Class => {
+  return class ListClass extends Class {
+    constructor(...args) {
+      super(...args)
+      castArray(options).forEach(option => {
+        const { name } = option
+        const listName = `${name}List`
+        const fetchListName = `fetch${upperFirst(name)}List`
+        const list = {
+          rowKey: option.rowKey,
+          dataSource: [],
+          loading: true,
+          pagination: {
+            current: 1,
+            pageSize: 10,
+            total: 0,
+            onChange: page => {
+              this[listName].pagination.current = page
+              this[fetchListName]()
+            },
+          },
+        }
+        if (option.rowSelectionKey) {
+          list.rowSelection = {
+            getCheckboxProps: record => record[option.rowSelectionKey],
+            onChange: keys => (this[listName].checkedKeys = keys),
+          }
+          list.checkedKeys = []
+        }
+        extendObservable(
+          this,
+          {
+            [listName]: list,
+          },
+          // {},
+          // { deep: false },
+        )
+
+        this[fetchListName] = action(`fetch${name}List`, () => {
+          this[listName].loading = true
+          const { pagination } = this[listName]
+          return fetch(option.url, {
+            pageNo: pagination.current,
+            pageSize: pagination.pageSize,
+          }).then(
+            action(`set${listName}`, data => {
+              merge(this[listName], data, {
+                loading: false,
+              })
+            }),
+          )
+        })
+      })
+    }
+  }
+}
+
+export default generateList
