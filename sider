@@ -1,0 +1,153 @@
+import React from 'react'
+import { inject, observer } from 'mobx-react'
+import { toJS } from 'mobx'
+// import './sider.scss'
+// import tmpls from './sider.t.html'
+// import { slide as Menu } from 'react-burger-menu'
+import { Link } from 'react-router-dom'
+// import classnames from 'classnames'
+import { Icon, Menu } from 'antd'
+import s from './style.m.less'
+// import page from 'scroll-doc'
+// import scroll from 'scroll'
+// import debounce from 'lodash/debounce'
+
+// 路由切换后自动回到顶部
+// const scrollTop = debounce(() => {
+//   setTimeout(() => {
+//     scroll.top(page(), 0, { duration: 300 })
+//   }, 300)
+// }, 100)
+
+@inject('store')
+@observer
+export default class Sider extends React.Component {
+  unsubscribeHistory = null
+
+  componentDidMount() {
+    const {
+      router: { history },
+      sider,
+      header,
+      common,
+    } = this.props.store
+    sider.getSystemMenus().then(() => {
+      // 通过监听history的变化，实现菜单高亮选中状态
+      // 在页面第一次加载与路由切换时都会执行
+      this.unsubscribeHistory = history.subscribe(location => {
+        const currentPathname = location.pathname.slice(1).replace(/\/.*$/, '')
+        const level3 = sider.level3Menus.find(m => {
+          return m.link === `/${currentPathname}`
+        })
+        // 基于当前url路径展开三级菜单的上级菜单
+        if (level3) {
+          const parentMenu =
+            sider.menuData[level3.topMenuIndex].children[level3.parentMenuIndex]
+          header.setActiveIndex(level3.topMenuIndex)
+          common.setMenuPositionTip([parentMenu.name, level3.name, level3.link])
+          if (level3.parentKey) {
+            sider.setOpenKeys([level3.parentKey])
+          }
+          sider.setSelectedKeys([level3.key])
+        }
+        // scrollTop()
+      })
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeHistory && this.unsubscribeHistory()
+  }
+
+  selectMenu = e => {
+    const {
+      router: { location },
+    } = this.props.store
+    const href = e.target.getAttribute('href')
+    // 防止路由重复进入
+    if (location.pathname === href) {
+      e.preventDefault()
+      e.stopPropagation()
+      return false
+    }
+  }
+
+  toggleMenu = item => {
+    return e => {
+      this.props.store.sider.setMenuDataByIndex(!item.expanded, item.pathname)
+    }
+  }
+
+  renderMenu = item => {
+    const { sider } = this.props.store
+    if (item.link) {
+      return (
+        <Menu.Item key={item.key}>
+          {item.icon && <Icon type={item.icon} />}
+          <Link to={item.link} onClick={this.selectMenu}>
+            {item.name}
+          </Link>
+        </Menu.Item>
+      )
+    }
+    return (
+      <Menu.SubMenu
+        title={
+          item.icon ? (
+            <span>
+              <Icon type={item.icon} />
+              {item.name}
+            </span>
+          ) : (
+            item.name
+          )
+        }
+        key={item.key}
+        inlineCollapsed={sider.collapsed}
+      >
+        {item.children.map(menu => (
+          <Menu.Item key={menu.key}>
+            <Link to={menu.link} onClick={this.selectMenu}>
+              {menu.name}
+            </Link>
+          </Menu.Item>
+        ))}
+      </Menu.SubMenu>
+    )
+  }
+
+  // 设置当前选中的菜单
+  setSelectedKeys = ({ key }) => {
+    const { sider } = this.props.store
+    sider.setSelectedKeys([key])
+  }
+
+  setOpenKeys = keys => {
+    const { sider } = this.props.store
+    // 只能同时展开一个二级菜单
+    if (keys.length === 2) {
+      keys = [keys[1]]
+    }
+    sider.setOpenKeys(keys)
+  }
+
+  render() {
+    const { sider } = this.props.store
+    const menus = toJS(sider.currentMenuData)
+
+    return (
+      <div className={s.sider}>
+        <Menu
+          selectedKeys={toJS(sider.selectedKeys)}
+          openKeys={toJS(sider.openKeys)}
+          mode="inline"
+          inlineCollapsed={sider.collapsed}
+          onOpenChange={this.setOpenKeys}
+          onSelect={this.setSelectedKeys}
+        >
+          {menus.map(menu => this.renderMenu(menu))}
+        </Menu>
+      </div>
+    )
+  }
+}
